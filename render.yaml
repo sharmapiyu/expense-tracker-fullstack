@@ -36,7 +36,7 @@ services:
         fromService:
           name: expense-tracker-db
           type: pserv
-          property: user
+          property: username
       - key: DB_PASSWORD
         fromService:
           name: expense-tracker-db

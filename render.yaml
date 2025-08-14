@@ -1,0 +1,70 @@
+services:
+  # PostgreSQL Database
+  - type: pserv
+    name: expense-tracker-db
+    env: postgresql
+    plan: free
+    region: oregon
+    databaseName: expensetracker
+    user: expensetracker
+
+  # Backend API
+  - type: web
+    name: expense-tracker-api
+    env: docker
+    region: oregon
+    plan: free
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    envVars:
+      - key: DB_HOST
+        fromService:
+          name: expense-tracker-db
+          type: pserv
+          property: host
+      - key: DB_PORT
+        fromService:
+          name: expense-tracker-db
+          type: pserv
+          property: port
+      - key: DB_NAME
+        fromService:
+          name: expense-tracker-db
+          type: pserv
+          property: database
+      - key: DB_USER
+        fromService:
+          name: expense-tracker-db
+          type: pserv
+          property: user
+      - key: DB_PASSWORD
+        fromService:
+          name: expense-tracker-db
+          type: pserv
+          property: password
+      - key: JPA_DDL_AUTO
+        value: update
+      - key: JPA_SHOW_SQL
+        value: false
+      - key: H2_CONSOLE_ENABLED
+        value: false
+      - key: JWT_SECRET
+        value: ExpenseTrackerJWTSecretKey2024!ThisIsAVeryLongAndSecureKeyForProductionUseWithMinimum256Bits
+      - key: JWT_EXPIRATION_MS
+        value: 86400000
+      - key: SERVER_PORT
+        value: 8080
+      - key: ALLOWED_ORIGINS
+        value: https://expense-tracker-frontend.onrender.com
+
+  # Frontend
+  - type: web
+    name: expense-tracker-frontend
+    env: static
+    region: oregon
+    plan: free
+    buildCommand: cd frontend && npm install && npm run build
+    staticPublishPath: frontend/dist
+    envVars:
+      - key: VITE_API_BASE
+        value: https://expense-tracker-api.onrender.com

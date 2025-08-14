@@ -1,0 +1,58 @@
+version: "3.9"
+services:
+  postgres:
+    image: postgres:16
+    container_name: expense_pg_prod
+    environment:
+      POSTGRES_DB: ${DB_NAME:-expensetracker}
+      POSTGRES_USER: ${DB_USER:-expensetracker}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    volumes:
+      - pgdata_prod:/var/lib/postgresql/data
+    restart: unless-stopped
+    networks:
+      - expense_network
+
+  backend:
+    build: ./backend
+    container_name: expense_backend_prod
+    environment:
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_NAME=${DB_NAME:-expensetracker}
+      - DB_USER=${DB_USER:-expensetracker}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - JPA_DDL_AUTO=${JPA_DDL_AUTO:-update}
+      - JPA_SHOW_SQL=${JPA_SHOW_SQL:-false}
+      - H2_CONSOLE_ENABLED=${H2_CONSOLE_ENABLED:-false}
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_EXPIRATION_MS=${JWT_EXPIRATION_MS:-86400000}
+      - SERVER_PORT=${SERVER_PORT:-8080}
+      - ALLOWED_ORIGINS=${ALLOWED_ORIGINS}
+    ports:
+      - "${SERVER_PORT:-8080}:8080"
+    depends_on:
+      - postgres
+    restart: unless-stopped
+    networks:
+      - expense_network
+
+  frontend:
+    build: ./frontend
+    container_name: expense_frontend_prod
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+    networks:
+      - expense_network
+
+volumes:
+  pgdata_prod:
+
+networks:
+  expense_network:
+    driver: bridge

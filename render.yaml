@@ -4,7 +4,6 @@ services:
     name: expense-tracker-db
     env: postgresql
     plan: free
-    startCommand: postgres
 
   # Backend API
   - type: web
@@ -29,10 +28,7 @@ services:
       - key: DB_USER
         value: expensetracker
       - key: DB_PASSWORD
-        fromService:
-          name: expense-tracker-db
-          type: pserv
-          property: connectionString
+        value: expensetracker123
       - key: JPA_DDL_AUTO
         value: update
       - key: JPA_SHOW_SQL

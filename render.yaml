@@ -4,13 +4,12 @@ services:
     name: expense-tracker-db
     env: postgresql
     plan: free
-    region: oregon
+    startCommand: postgres
 
   # Backend API
   - type: web
     name: expense-tracker-api
     env: docker
-    region: oregon
     plan: free
     dockerfilePath: ./backend/Dockerfile
     dockerContext: ./backend
@@ -26,20 +25,14 @@ services:
           type: pserv
           property: port
       - key: DB_NAME
-        fromService:
-          name: expense-tracker-db
-          type: pserv
-          property: database
+        value: expensetracker
       - key: DB_USER
-        fromService:
-          name: expense-tracker-db
-          type: pserv
-          property: user
+        value: expensetracker
       - key: DB_PASSWORD
         fromService:
           name: expense-tracker-db
           type: pserv
-          property: password
+          property: connectionString
       - key: JPA_DDL_AUTO
         value: update
       - key: JPA_SHOW_SQL
@@ -59,7 +52,6 @@ services:
   - type: web
     name: expense-tracker-frontend
     env: static
-    region: oregon
     plan: free
     buildCommand: cd frontend && npm install && npm run build
     staticPublishPath: frontend/dist

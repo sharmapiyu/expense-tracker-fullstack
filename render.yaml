@@ -5,8 +5,8 @@ services:
     env: postgresql
     plan: free
     region: oregon
-    database: expensetracker
-    username: expensetracker
+    databaseName: expensetracker
+    user: expensetracker
 
   # Backend API
   - type: web
@@ -36,7 +36,7 @@ services:
         fromService:
           name: expense-tracker-db
           type: pserv
-          property: username
+          property: user
       - key: DB_PASSWORD
         fromService:
           name: expense-tracker-db
